@@ -5,19 +5,11 @@
   <title>TRISHUL – Fraud Detection Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
-<style>
-        body { font-family: Arial; background: #0f172a; color: white; padding: 20px; }
-        h1 { color: #38bdf8; }
-        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
-        th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
-        th { background: #1e293b; }
-        .alert { background: #7f1d1d; padding: 10px; margin-bottom: 10px; }
-    </style>
 
 <body>
 
 <!-- NAVBAR -->
-<nav>
+<nav class="navbar">
   <div class="logo">🛡 TRISHUL</div>
   <div class="links">
     <a href="index.html" class="active">Home</a>
@@ -28,26 +20,30 @@
   </div>
 </nav>
 
-<!-- MAIN CONTENT -->
+<!-- MAIN CONTAINER -->
 <div class="container">
 
   <h1>TRISHUL – Graph-Based Fraud Detection</h1>
-  <p>
+  <p class="subtitle">
     Detecting coordinated micro-fraud using Graph Neural Networks (GNNs)
     and contextual AI explanations.
   </p>
 
+  <!-- TRANSACTIONS -->
   <h2>Transactions</h2>
-  <table id="txTable">
-    <tr>
-      <th>ID</th>
-      <th>From</th>
-      <th>To</th>
-      <th>Amount</th>
-      <th>Label</th>
-    </tr>
-  </table>
+  <div class="card">
+    <table id="txTable">
+      <tr>
+        <th>ID</th>
+        <th>From</th>
+        <th>To</th>
+        <th>Amount</th>
+        <th>Label</th>
+      </tr>
+    </table>
+  </div>
 
+  <!-- ALERTS -->
   <h2>Fraud Alerts</h2>
   <div id="alerts"></div>
 
@@ -56,6 +52,7 @@
 <!-- SCRIPT -->
 <script>
 async function loadData() {
+
   // Reset table
   document.getElementById("txTable").innerHTML = `
     <tr>
@@ -68,7 +65,7 @@ async function loadData() {
 
   document.getElementById("alerts").innerHTML = "";
 
-  // Transactions
+  // Fetch transactions
   const txRes = await fetch("http://127.0.0.1:8000/transactions");
   const txs = await txRes.json();
 
@@ -82,7 +79,7 @@ async function loadData() {
     row.insertCell(4).innerText = tx.label;
   });
 
-  // Alerts
+  // Fetch alerts
   const alertRes = await fetch("http://127.0.0.1:8000/alerts");
   const alerts = await alertRes.json();
 
@@ -90,7 +87,10 @@ async function loadData() {
   alerts.forEach(a => {
     const d = document.createElement("div");
     d.className = "alert";
-    d.innerHTML = `<b>Account:</b> ${a.account}<br><pre>${a.explanation}</pre>`;
+    d.innerHTML = `
+      <strong>Account:</strong> ${a.account}<br><br>
+      <pre>${a.explanation}</pre>
+    `;
     alertDiv.appendChild(d);
   });
 }
