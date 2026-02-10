@@ -1,0 +1,5 @@
+Micro-transaction fraud rings often involve multiple accounts sending small amounts in circular patterns to avoid thresholds.
+Account takeover fraud is indicated by unusual login behavior followed by rapid fund transfers.
+Card fraud rings show repeated low-value card payments across linked merchant accounts.
+Money laundering patterns include layering through multiple intermediary accounts in short time windows.
+Synthetic identity fraud involves newly created accounts with minimal history engaging in coordinated activity.

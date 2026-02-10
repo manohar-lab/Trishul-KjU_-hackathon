@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TRISHUL – Fraud Detection Dashboard</title>
+    <style>
+        body { font-family: Arial; background: #0f172a; color: white; padding: 20px; }
+        h1 { color: #38bdf8; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 30px; }
+        th, td { border: 1px solid #334155; padding: 8px; text-align: center; }
+        th { background: #1e293b; }
+        .alert { background: #7f1d1d; padding: 10px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<h1>TRISHUL – Graph-Based Fraud Detection</h1>
+
+<h2>Transactions</h2>
+<table id="txTable">
+    <tr>
+        <th>ID</th><th>From</th><th>To</th><th>Amount</th><th>Label</th>
+    </tr>
+</table>
+
+<h2>Fraud Alerts</h2>
+<div id="alerts"></div>
+
+<script>
+async function loadData() {
+    // Clear old data
+    document.getElementById("txTable").innerHTML = `
+        <tr>
+            <th>ID</th><th>From</th><th>To</th><th>Amount</th><th>Label</th>
+        </tr>`;
+    document.getElementById("alerts").innerHTML = "";
+
+    // Load transactions
+    const txRes = await fetch("http://127.0.0.1:8000/transactions");
+    const txs = await txRes.json();
+
+    const table = document.getElementById("txTable");
+    txs.forEach(tx => {
+        const row = table.insertRow();
+        row.insertCell(0).innerText = tx.txn_id;
+        row.insertCell(1).innerText = tx.src;
+        row.insertCell(2).innerText = tx.dst;
+        row.insertCell(3).innerText = tx.amount;
+        row.insertCell(4).innerText = tx.label;
+    });
+
+    // Load alerts
+    const alertRes = await fetch("http://127.0.0.1:8000/alerts");
+    const alerts = await alertRes.json();
+
+    const alertDiv = document.getElementById("alerts");
+    alerts.forEach(a => {
+        const d = document.createElement("div");
+        d.className = "alert";
+        d.innerHTML = `<b>Account:</b> ${a.account}<br><pre>${a.explanation}</pre>`;
+        alertDiv.appendChild(d);
+    });
+}
+
+// Initial load
+loadData();
+
+// Auto refresh every 5 seconds
+setInterval(loadData, 5000);
+</script>
+
+</body>
+</html>
