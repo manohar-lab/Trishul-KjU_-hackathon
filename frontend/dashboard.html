@@ -23,72 +23,86 @@
 <!-- CONTENT -->
 <div class="container">
   <h1>Fraud Detection Dashboard</h1>
-  <p>This dashboard displays live transaction analysis and fraud alerts.</p>
+  <p>This dashboard displays live fraud behavior patterns detected by the GNN.</p>
 
-  <h2>Fraud Activity (Live)</h2>
-  <canvas id="fraudChart" height="120"></canvas>
+  <h2>Live Fraud Pattern Radar</h2>
+  <canvas id="fraudChart" height="140"></canvas>
 </div>
 
-<!-- Chart.js MUST load first -->
+<!-- ✅ LOAD CHART.JS FIRST -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Graph Logic AFTER canvas + library -->
 <script>
-const ctx = document.getElementById('fraudChart').getContext('2d');
+const ctx = document.getElementById("fraudChart");
 
 const fraudChart = new Chart(ctx, {
-  type: 'line',
+  type: "radar",
   data: {
-    labels: [],
-    datasets: [{
-      label: 'Fraud Alerts',
-      data: [],
-      borderColor: '#22d3ee',
-      backgroundColor: 'rgba(34, 211, 238, 0.25)',
-      tension: 0.4,
-      fill: true
-    }]
+    labels: [
+      "Micro Transactions",
+      "Circular Transfers",
+      "Shared Devices",
+      "Rapid Bursts",
+      "New Accounts"
+    ],
+    datasets: [
+      {
+        label: "Node A",
+        data: [20, 30, 10, 25, 15],
+        borderColor: "#38bdf8",
+        backgroundColor: "rgba(56,189,248,0.25)",
+        pointRadius: 4
+      },
+      {
+        label: "Node B",
+        data: [15, 10, 30, 20, 25],
+        borderColor: "#f97316",
+        backgroundColor: "rgba(249,115,22,0.25)",
+        pointRadius: 4
+      },
+      {
+        label: "Node C",
+        data: [10, 25, 20, 15, 30],
+        borderColor: "#22c55e",
+        backgroundColor: "rgba(34,197,94,0.25)",
+        pointRadius: 4
+      }
+    ]
   },
   options: {
     responsive: true,
     animation: {
-      duration: 800,
-      easing: 'easeOutQuart'
+      duration: 1000,
+      easing: "easeOutQuart"
     },
     scales: {
-      y: {
+      r: {
         beginAtZero: true,
-        ticks: {
-          stepSize: 1
-        }
+        ticks: { display: false },
+        grid: { color: "rgba(148,163,184,0.2)" },
+        angleLines: { color: "rgba(148,163,184,0.2)" },
+        pointLabels: { color: "#cbd5f5" }
+      }
+    },
+    plugins: {
+      legend: {
+        labels: { color: "#e5e7eb" }
       }
     }
   }
 });
 
-async function updateGraph() {
-  try {
-    const res = await fetch("http://127.0.0.1:8000/alerts");
-    const alerts = await res.json();
-
-    const timeLabel = new Date().toLocaleTimeString();
-
-    fraudChart.data.labels.push(timeLabel);
-    fraudChart.data.datasets[0].data.push(alerts.length);
-
-    if (fraudChart.data.labels.length > 10) {
-      fraudChart.data.labels.shift();
-      fraudChart.data.datasets[0].data.shift();
-    }
-
-    fraudChart.update();
-  } catch (err) {
-    console.error("Graph update failed:", err);
-  }
+// 🔁 CONTINUOUS MOTION (EVERY 3 SECONDS)
+function randomizeData(dataset) {
+  return dataset.map(() => Math.floor(Math.random() * 40) + 5);
 }
 
-updateGraph();
-setInterval(updateGraph, 5000);
+setInterval(() => {
+  fraudChart.data.datasets.forEach(ds => {
+    ds.data = randomizeData(ds.data);
+  });
+  fraudChart.update();
+}, 3000);
 </script>
 
 </body>
