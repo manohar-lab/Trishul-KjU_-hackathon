@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard | TRISHUL</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="logo">🛡 TRISHUL</div>
+  <div class="links">
+    <a href="index.html">Home</a>
+    <a href="solution.html">Solution</a>
+    <a href="dashboard.html" class="active">Dashboard</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+</nav>
+
+<!-- CONTENT -->
+<div class="container">
+  <h1>Fraud Detection Dashboard</h1>
+  <p>This dashboard displays live transaction analysis and fraud alerts.</p>
+
+  <h2>Fraud Activity (Live)</h2>
+  <canvas id="fraudChart" height="120"></canvas>
+</div>
+
+<!-- Chart.js MUST load first -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Graph Logic AFTER canvas + library -->
+<script>
+const ctx = document.getElementById('fraudChart').getContext('2d');
+
+const fraudChart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'Fraud Alerts',
+      data: [],
+      borderColor: '#22d3ee',
+      backgroundColor: 'rgba(34, 211, 238, 0.25)',
+      tension: 0.4,
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true,
+    animation: {
+      duration: 800,
+      easing: 'easeOutQuart'
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1
+        }
+      }
+    }
+  }
+});
+
+async function updateGraph() {
+  try {
+    const res = await fetch("http://127.0.0.1:8000/alerts");
+    const alerts = await res.json();
+
+    const timeLabel = new Date().toLocaleTimeString();
+
+    fraudChart.data.labels.push(timeLabel);
+    fraudChart.data.datasets[0].data.push(alerts.length);
+
+    if (fraudChart.data.labels.length > 10) {
+      fraudChart.data.labels.shift();
+      fraudChart.data.datasets[0].data.shift();
+    }
+
+    fraudChart.update();
+  } catch (err) {
+    console.error("Graph update failed:", err);
+  }
+}
+
+updateGraph();
+setInterval(updateGraph, 5000);
+</script>
+
+</body>
+</html>
